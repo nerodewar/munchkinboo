@@ -1,1 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Munchkin Boo</title>
+  <style>
+    body { font-family: system-ui, Segoe UI, Arial; margin: 0; background: #f6f7fb; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 24px; }
+    .card { background: #fff; border-radius: 16px; padding: 18px; box-shadow: 0 6px 20px rgba(0,0,0,.08); }
+    h1 { margin: 0 0 6px; }
+    .muted { color:#555; margin: 6px 0 14px; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; margin: 12px 0; }
+    button, input {
+      border: 0; border-radius: 12px; padding: 10px 14px;
+      box-shadow: 0 3px 10px rgba(0,0,0,.08);
+      font-size: 14px;
+    }
+    button { cursor:pointer; background:#fff; }
+    button.primary { background:#1f6feb; color:#fff; }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    input { width: 240px; border: 1px solid #ddd; box-shadow:none; }
+    .panel { background:#0b1020; color:#e8eaf2; border-radius: 14px; padding: 14px; }
+    pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; line-height: 1.45; font-size: 16px; }
+    .hint { color:#b8c2ff; margin-top: 10px; font-size: 13px; }
+    .divider { height:1px; background:#eaeaea; margin:14px 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1 id="greeting">Hello, Anggi!</h1>
+      <div class="muted">A browser version of your original console flow.</div>
+
+      <div class="panel">
+        <pre id="output">------------------------------
+Press Start to begin.
+------------------------------</pre>
+        <div class="hint" id="hint"></div>
+      </div>
+
+      <div class="row">
+        <button class="primary" id="startBtn">Start</button>
+        <button id="newGreetingBtn">New greeting</button>
+        <button id="resetBtn">Reset</button>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="row">
+        <input id="textInput" placeholder="Type here (Y/N or mood)..." disabled />
+        <button id="sendBtn" disabled>Send</button>
+      </div>
+
+      <div class="row">
+        <button id="yBtn" disabled>Y</button>
+        <button id="nBtn" disabled>N</button>
+        <button id="sleepyBtn" disabled>sleepy</button>
+        <button id="hungryBtn" disabled>hungry</button>
+        <button id="naughtyBtn" disabled>naughty</button>
+        <button id="againBtn" disabled>Another story</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const greetings = ["Hello, Anggi!", "Howdy, partner!", "Welcome, my love!"];
+    const stories = {
+      sleepy: [
+`The Moon’s Pajamas
+
+Pumpkin yawned so wide the stars almost fell in.
+Munchkin Boo tiptoed to the window and whispered, “Shhh… the moon is getting dressed.”
+
+Outside, the moon pulled on silver pajamas stitched from cloud-thread.
+One by one, the stars pinned tiny buttons of light across the sky.
+
+“See?” said Munchkin Boo. “Even the night is putting on its cozy clothes.”
+Pumpkin snuggled deeper, listening to the soft hush of moonlight.
+
+And just like that—quiet as a feather—sleep arrived and sat beside Pumpkin like a warm, purring cat.`,
+`The Blanket Boat
+
+Pumpkin couldn’t sleep, so Munchkin Boo folded the blanket into a little boat.
+“Tonight,” Boo whispered, “we sail the Pillow Sea.”
+
+They floated past islands of cushions and a lighthouse made of a nightlight.
+A friendly whale (which was really just the laundry basket) sang a low, sleepy song.
+
+When the boat reached the Land of Dreaming, the waves turned gentle and slow.
+Pumpkin’s eyes grew heavy, and the blanket boat drifted into calm, cozy darkness.
+
+“Goodnight,” said Boo.
+“Goodnight,” said Pumpkin.
+And the sea stayed still.`
+      ],
+      hungry: [
+`The Midnight Pancake Quest
+
+Pumpkin’s tummy rumbled like a tiny thunderstorm.
+Munchkin Boo put on a brave face and a chef hat that was definitely too big.
+
+They sneaked into the kitchen like two secret agents.
+The mission: pancakes.
+
+Boo mixed the batter with dramatic seriousness.
+Pumpkin guarded the blueberries like precious treasure.
+When the first pancake landed in the pan—sizzle!—it smelled like happiness.
+
+They built a pancake tower and crowned it with a blueberry on top.
+One bite later, the thunderstorm tummy turned into a satisfied purr.
+
+“Mission complete,” whispered Boo.
+Pumpkin grinned. “Best mission ever.”`,
+`The Sandwich That Wanted to Be Famous
+
+Pumpkin opened the fridge and found a sandwich wrapped like a present.
+A tiny note said: “I’m destined for greatness.”
+
+Munchkin Boo helped assemble the sandwich’s “red carpet”:
+a plate, a fancy napkin, and two dramatic pickles on the side.
+
+The sandwich stood tall—bread, cheese, tomato, and a brave leaf of lettuce.
+Pumpkin took a bite.
+
+“Oh!” Pumpkin said. “You *are* famous.”
+The sandwich—if sandwiches could—would have blushed.
+
+And the fridge? It applauded silently, as fridges do.`
+      ],
+      naughty: [
+`The Case of the Missing Cookies
+
+Munchkin Boo gasped. “Pumpkin! The cookie jar is suspiciously lighter!”
+Pumpkin’s eyes went wide. “That’s… very suspicious.”
+
+They investigated the kitchen.
+Clue #1: crumbs near the counter.
+Clue #2: a tiny chocolate smudge.
+Clue #3: a sock on the floor that absolutely did not belong there.
+
+Suddenly, the cat waddled by—looking round and extremely innocent.
+Boo narrowed their eyes. “Aha. The Cookie Bandit!”
+
+The cat meowed as if to say, “No comment.”
+Pumpkin laughed. “We’ve been out-naughtied.”
+
+So they made a new batch together—this time with extra “security measures”
+(which was just Boo standing guard like a very serious marshmallow).`,
+`The Great Button Mischief
+
+Pumpkin found a jar of colorful buttons and declared, “These are treasure.”
+Munchkin Boo nodded. “Then we must protect the treasure… by hiding it.”
+
+They hid buttons in silly places:
+one on the bookshelf like a secret jewel,
+one in a slipper like a surprise,
+and one on Boo’s own nose (the best hiding spot).
+
+When Pumpkin’s family noticed the mysterious buttons,
+they started laughing and searching like it was a scavenger hunt.
+
+At the end, Boo made a grand speech:
+“The treasure was never the buttons… it was the giggles.”
+
+Pumpkin bowed. “We are very naughty.”
+Boo bowed back. “And very proud.”`
+      ]
+    };
+
+    const greetingEl = document.getElementById("greeting");
+    const outputEl = document.getElementById("output");
+    const hintEl = document.getElementById("hint");
+
+    const startBtn = document.getElementById("startBtn");
+    const newGreetingBtn = document.getElementById("newGreetingBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    const textInput = document.getElementById("textInput");
+    const sendBtn = document.getElementById("sendBtn");
+
+    const yBtn = document.getElementById("yBtn");
+    const nBtn = document.getElementById("nBtn");
+    const sleepyBtn = document.getElementById("sleepyBtn");
+    const hungryBtn = document.getElementById("hungryBtn");
+    const naughtyBtn = document.getElementById("naughtyBtn");
+    const againBtn = document.getElementById("againBtn");
+
+    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+    // App state matches your console flow
+    // stage: "idle" -> "askYesNo" -> "askMood" -> "showStory" -> "goodbye"
+    let stage = "idle";
+    let currentMood = null;
+
+    function setButtons({ yn=false, mood=false, again=false, input=false }) {
+      yBtn.disabled = !yn;
+      nBtn.disabled = !yn;
+
+      sleepyBtn.disabled = !mood;
+      hungryBtn.disabled = !mood;
+      naughtyBtn.disabled = !mood;
+
+      againBtn.disabled = !again;
+
+      textInput.disabled = !input;
+      sendBtn.disabled = !input;
+    }
+
+    function printBlock(lines) {
+      outputEl.textContent = lines.join("\n");
+    }
+
+    function promptYesNo() {
+      stage = "askYesNo";
+      currentMood = null;
+      printBlock([
+        "------------------------------",
+        pick(greetings),
+        "------------------------------",
+        "",
+        "------------------------------",
+        "Would you like Munchkin Boo to tell you a short story?",
+        "Press Y for Yes or N for No",
+        "------------------------------"
+      ]);
+      hintEl.textContent = "Type Y or N (or click the buttons).";
+      setButtons({ yn:true, mood:false, again:false, input:true });
+      textInput.value = "";
+      textInput.focus();
+    }
+
+    function sayGoodbye() {
+      stage = "goodbye";
+      printBlock([
+        ...outputEl.textContent.split("\n"),
+        "",
+        "------------------------------",
+        "See you next time, my love!",
+        "------------------------------"
+      ]);
+      hintEl.textContent = "Press Reset to play again.";
+      setButtons({ yn:false, mood:false, again:false, input:false });
+    }
+
+    function promptMood() {
+      stage = "askMood";
+      printBlock([
+        ...outputEl.textContent.split("\n"),
+        "",
+        "------------------------------",
+        "Are you feeling hungry, sleepy or naughty?",
+        "Type: sleepy / hungry / naughty",
+        "------------------------------"
+      ]);
+      hintEl.textContent = "Type a mood or click one.";
+      setButtons({ yn:false, mood:true, again:false, input:true });
+      textInput.value = "";
+      textInput.focus();
+    }
+
+    function showStory(mood) {
+      stage = "showStory";
+      currentMood = mood;
+      const story = pick(stories[mood]);
+
+      printBlock([
+        ...outputEl.textContent.split("\n"),
+        "",
+        "------------------------------",
+        story,
+        "------------------------------",
+        "",
+        "Want another story?",
+        "Click 'Another story' (same mood) or choose a different mood."
+      ]);
+      hintEl.textContent = "Another story repeats the same mood.";
+      setButtons({ yn:false, mood:true, again:true, input:true });
+      textInput.value = "";
+      textInput.focus();
+    }
+
+    function handleInput(raw) {
+      const s = (raw || "").trim().toLowerCase();
+      if (!s) return;
+
+      if (stage === "askYesNo") {
+        if (s === "y") {
+          promptMood();
+        } else if (s === "n") {
+          printBlock([
+            ...outputEl.textContent.split("\n"),
+            "",
+            "------------------------------",
+            "Okay, Pumpkin!",
+            "------------------------------"
+          ]);
+          sayGoodbye();
+        } else {
+          hintEl.textContent = "Please press Y for Yes or N for No.";
+        }
+        return;
+      }
+
+      if (stage === "askMood" || stage === "showStory") {
+        if (s in stories) {
+          showStory(s);
+        } else if (s === "y" || s === "n") {
+          // If someone types y/n at the wrong time, guide them
+          hintEl.textContent = "Pick a mood: sleepy / hungry / naughty.";
+        } else {
+          hintEl.textContent = "I only know: sleepy, hungry, or naughty.";
+        }
+        return;
+      }
+    }
+
+    // Buttons
+    startBtn.onclick = () => promptYesNo();
+    resetBtn.onclick = () => {
+      stage = "idle";
+      currentMood = null;
+      greetingEl.textContent = pick(greetings);
+      printBlock([
+        "------------------------------",
+        "Press Start to begin.",
+        "------------------------------"
+      ]);
+      hintEl.textContent = "";
+      setButtons({ yn:false, mood:false, again:false, input:false });
+    };
+    newGreetingBtn.onclick = () => greetingEl.textContent = pick(greetings);
+
+    yBtn.onclick = () => handleInput("y");
+    nBtn.onclick = () => handleInput("n");
+    sleepyBtn.onclick = () => showStory("sleepy");
+    hungryBtn.onclick = () => showStory("hungry");
+    naughtyBtn.onclick = () => showStory("naughty");
+    againBtn.onclick = () => { if (currentMood) showStory(currentMood); };
+
+    sendBtn.onclick = () => { handleInput(textInput.value); };
+    textInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") handleInput(textInput.value);
+    });
+
+    // initial
+    greetingEl.textContent = pick(greetings);
+    setButtons({ yn:false, mood:false, again:false, input:false });
+  </script>
+</body>
+</html>
+
 
